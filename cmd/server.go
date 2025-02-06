@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
+	"github.com/stainton/database/cmd/users"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -51,8 +52,6 @@ func GetDatabase(service, database, password string) (*sql.DB, error) {
 
 func RunServer(db *sql.DB) error {
 	router := gin.Default()
-	router.POST("/createTableUsers", HandlerCreateTableUsers(db))
-	router.GET("/user/:username", HandlerGetUserIDByName(db))
-	router.POST("/user", HandlerInsertUser(db))
+	users.RegisterHandler(router, db)
 	return router.Run(":8080")
 }
