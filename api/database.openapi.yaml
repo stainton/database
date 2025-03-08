@@ -1,0 +1,891 @@
+openapi: 3.0.1
+info:
+  title: database
+  description: ''
+  version: 1.0.0
+tags:
+  - name: user
+  - name: order
+  - name: reward
+paths:
+  /user/register:
+    post:
+      summary: Register an user
+      deprecated: false
+      description: Register an user
+      operationId: register-user
+      tags:
+        - user
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &ref_0
+              $ref: '#/components/schemas/user'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '400':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '500':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+      security: []
+  /user:
+    get:
+      summary: Get an user
+      deprecated: false
+      description: Get an user
+      operationId: get-an-user
+      tags:
+        - user
+      parameters:
+        - name: id
+          in: query
+          description: ID
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: name
+          required: false
+          schema:
+            type: string
+        - name: tel
+          in: query
+          description: Phone number
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '400':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '500':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        x-200-2:
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties: {}
+          headers: {}
+      security: []
+    put:
+      summary: Update an user
+      deprecated: false
+      description: Update an user
+      operationId: update-an-user
+      tags:
+        - user
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: *ref_0
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '400':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '500':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+      security: []
+  /order:
+    get:
+      summary: Query orders details
+      deprecated: false
+      description: Query orders details
+      operationId: query-order-details
+      tags:
+        - order
+      parameters:
+        - name: userid
+          in: query
+          description: user ID
+          required: false
+          schema:
+            type: integer
+        - name: tel
+          in: query
+          description: user phone number
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: user name
+          required: false
+          schema:
+            type: string
+        - name: productid
+          in: query
+          description: product ID
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '400':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '500':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        x-200-2:
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: total pay
+                  details:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/productpay'
+                    description: user pay details
+                required:
+                  - total
+                  - details
+          headers: {}
+        x-200-3:
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: total pay
+                  details:
+                    type: array
+                    items: &ref_2
+                      $ref: '#/components/schemas/userpay'
+                    description: pay details
+                required:
+                  - total
+                  - details
+          headers: {}
+      security: []
+    post:
+      summary: Create an order
+      deprecated: false
+      description: Create an order
+      operationId: create-an-order
+      tags:
+        - order
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema: &ref_1
+              $ref: '#/components/schemas/order'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '400':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '500':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+      security: []
+    put:
+      summary: Update an order
+      deprecated: false
+      description: Update an order
+      operationId: update-an-order
+      tags: []
+      parameters:
+        - name: userid
+          in: query
+          description: user ID
+          required: false
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema: *ref_1
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '400':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '500':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+      security: []
+  /reward:
+    get:
+      summary: Get reward details
+      deprecated: false
+      description: Get reward details
+      operationId: get-reward-details
+      tags:
+        - reward
+      parameters:
+        - name: date
+          in: query
+          description: date
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '400':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '500':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        x-200-2:
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  total:
+                    type: integer
+                    description: total pay
+                  details:
+                    type: array
+                    items: *ref_2
+                    description: pay details
+                required:
+                  - total
+                  - details
+          headers: {}
+      security: []
+    post:
+      summary: Create a reward record
+      deprecated: false
+      description: Create a reward record
+      operationId: create-a-reward-record
+      tags:
+        - reward
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/reward'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '400':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '404':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+        '500':
+          description: ''
+          content:
+            application/json:
+              schema:
+                title: ''
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    description: response code
+                  message:
+                    type: string
+                    description: response message
+                required:
+                  - code
+                  - message
+          headers: {}
+      security: []
+components:
+  schemas:
+    user:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: userID, unique
+        name:
+          type: string
+          description: user name
+        tel:
+          type: string
+          description: phone number
+      required:
+        - id
+        - name
+        - tel
+    order:
+      type: object
+      properties:
+        id:
+          type: string
+          description: order ID, unique
+        userid:
+          type: string
+          description: user ID
+        productid:
+          type: integer
+          description: product ID
+        price:
+          type: integer
+          description: product price
+        date:
+          type: string
+          description: date
+        type:
+          type: integer
+          description: product type
+      required:
+        - id
+        - userid
+        - productid
+        - price
+        - date
+        - type
+    reward:
+      type: object
+      properties:
+        productid:
+          type: integer
+          description: product ID
+        date:
+          type: string
+          description: date
+      required:
+        - productid
+        - date
+    userpay:
+      type: object
+      properties:
+        userid:
+          type: integer
+          description: user ID
+        pay:
+          type: integer
+          description: pay
+      required:
+        - userid
+        - pay
+    productpay:
+      type: object
+      properties:
+        productid:
+          type: integer
+          description: product ID
+        pay:
+          type: integer
+          description: product pay
+      required:
+        - productid
+        - pay
+  securitySchemes: {}
+servers: []
+security: []
