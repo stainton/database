@@ -56,7 +56,7 @@ func NewDatabaseAPICmd() *cobra.Command {
 			}
 			rc := &config.RuntimeConfig{DBhandler: sqlDB}
 			router.POST("/user", user.RegisterUserHandler(l, rc))
-			router.GET("/user", user.GetUserHandler(l, rc))
+			router.GET("/user", user.GetUserChain(l, rc)...)
 			router.PUT("/user", user.UpdateUserHandler(l, rc))
 			if err = router.Run(":8090"); err != nil {
 				l.Fatalf("start server failed: %v", err)

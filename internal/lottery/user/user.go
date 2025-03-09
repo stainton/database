@@ -2,7 +2,9 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -54,7 +56,60 @@ func RegisterUserHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Co
 	}
 }
 
-func GetUserHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
+func GetUserChain(l logger.Logger, rc *config.RuntimeConfig) gin.HandlersChain {
+	return gin.HandlersChain{
+		GetUserListHandler(l, rc),
+		GetAnUserHandler(l, rc),
+	}
+}
+
+func GetUserListHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
+	return func(c *gin.Context) {
+		value, ok := c.GetQuery("batch")
+		if !ok {
+			c.Next()
+			return
+		}
+		db := rc.DBhandler
+		var queryString string
+		if !strings.Contains(value, ",") {
+			queryString = fmt.Sprintf("SELECT userid,name,telephone FROM users LIMIT %s", value)
+		} else {
+			vs := strings.Split(value, ",")
+			queryString = fmt.Sprintf("SELECT userid,name,telephone FROM users LIMIT %s,%s", vs[0], vs[1])
+		}
+		l.Debugf("user list query is [%s]", queryString)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		rows, err := db.QueryContext(ctx, queryString)
+		if err != nil {
+			l.Errorf("query user list failed: %v", err)
+			c.JSON(http.StatusInternalServerError, common.ResponseTemplate{
+				Code:    common.DB_QUERY_ERROR,
+				Message: "query user specied failed.",
+			})
+			return
+		}
+
+		usrs := []*User{}
+		for rows.Next() {
+			usr := User{}
+			if err := rows.Scan(&usr.UserID, &usr.Name, &usr.Telephone); err != nil {
+				l.Errorf("scan user info failed: %v", err)
+				c.JSON(http.StatusInternalServerError, common.ResponseTemplate{
+					Code:    common.DB_RESULT_SCAN,
+					Message: "get user info failed.",
+				})
+				continue
+			}
+			usrs = append(usrs, &usr)
+		}
+		c.JSON(http.StatusOK, usrs)
+		c.Abort()
+	}
+}
+
+func GetAnUserHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
 		db := rc.DBhandler
 		var queryString, value string
