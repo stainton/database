@@ -12,6 +12,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/stainton/database/cmd/db"
 	"github.com/stainton/database/internal/lottery/config"
+	"github.com/stainton/database/internal/lottery/order"
+	"github.com/stainton/database/internal/lottery/reward"
 	"github.com/stainton/database/internal/lottery/user"
 	"github.com/stainton/logger"
 )
@@ -58,6 +60,12 @@ func NewDatabaseAPICmd() *cobra.Command {
 			router.POST("/user", user.RegisterUserHandler(l, rc))
 			router.GET("/user", user.GetUserChain(l, rc)...)
 			router.PUT("/user", user.UpdateUserHandler(l, rc))
+
+			router.POST("/reward", reward.CreateRewardHandler(l, rc))
+
+			router.POST("/order", order.CreateOrderHandler(l, rc))
+			router.GET("/order", order.QueryOrderHandler(l, rc))
+
 			if err = router.Run(":8090"); err != nil {
 				l.Fatalf("start server failed: %v", err)
 			}

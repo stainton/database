@@ -13,4 +13,5 @@ const (
 
 	// About http
 	INVALID_PARAMS = 11000
+	INTERNAL       = 11001
 )
