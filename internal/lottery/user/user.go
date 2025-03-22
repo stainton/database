@@ -19,6 +19,7 @@ type User struct {
 	Telephone string `json:"telephone"`
 }
 
+// RegisterUserHandler 处理单个用户的注册
 func RegisterUserHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
 		db := rc.DBhandler
@@ -56,6 +57,7 @@ func RegisterUserHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Co
 	}
 }
 
+// GetUserChain 处理用户的获取
 func GetUserChain(l logger.Logger, rc *config.RuntimeConfig) gin.HandlersChain {
 	return gin.HandlersChain{
 		GetUserListHandler(l, rc),
@@ -63,6 +65,7 @@ func GetUserChain(l logger.Logger, rc *config.RuntimeConfig) gin.HandlersChain {
 	}
 }
 
+// GetUserListHandler 获取用户列表
 func GetUserListHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
 		value, ok := c.GetQuery("batch")
@@ -109,6 +112,7 @@ func GetUserListHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Con
 	}
 }
 
+// GetAnUserHandler 获取单个用户
 func GetAnUserHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
 		db := rc.DBhandler
@@ -143,6 +147,7 @@ func GetAnUserHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Conte
 	}
 }
 
+// UpdateUserHandler 更新单个用户
 func UpdateUserHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
 		db := rc.DBhandler

@@ -22,6 +22,9 @@ type Order struct {
 	Type      string `json:"type"`
 }
 
+// TODO: orderid不应该由用户创建，应该自增
+
+// getQueryParams 解析URL中的查询变量，用于拼接查询语句，查询条件为Order的各个成员
 func getQueryParams(c *gin.Context) string {
 	elements := []string{}
 	var v string
@@ -29,24 +32,30 @@ func getQueryParams(c *gin.Context) string {
 	if v, ok = c.GetQuery("userid"); ok {
 		elements = append(elements, fmt.Sprintf("userid = %s", v))
 	}
-	// 这里要根据tel/name来查到对应的userid
-	// if v, ok = c.GetQuery("tel"); ok {
-	// 	elements = append(elements, fmt.Sprintf("userid = %s", v))
-	// }
-	// if v, ok = c.GetQuery("name"); ok {
-	// 	elements = append(elements, fmt.Sprintf("userid = %s", v))
-	// }
-
+	if v, ok = c.GetQuery("orderid"); ok {
+		elements = append(elements, fmt.Sprintf("orderid = %s", v))
+	}
+	if v, ok = c.GetQuery("price"); ok {
+		elements = append(elements, fmt.Sprintf("price = %s", v))
+	}
+	if v, ok = c.GetQuery("date"); ok {
+		elements = append(elements, fmt.Sprintf("date = %s", v))
+	}
 	if v, ok = c.GetQuery("productid"); ok {
 		elements = append(elements, fmt.Sprintf("productid = %s", v))
 	}
 	if v, ok = c.GetQuery("type"); ok {
 		elements = append(elements, fmt.Sprintf("type = '%s'", v))
 	}
-	qp := strings.Join(elements, " AND ")
-	return fmt.Sprintf("WHERE %s", qp)
+	if len(elements) == 0 {
+		return ""
+	} else if len(elements) == 1 {
+		return fmt.Sprintf("WHERE %s", elements[0])
+	}
+	return fmt.Sprintf("WHERE %s", strings.Join(elements, " AND "))
 }
 
+// QueryOrderHandler 获取满足条件的订单列表
 func QueryOrderHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
 		defer c.Abort()
@@ -77,6 +86,7 @@ func QueryOrderHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Cont
 	}
 }
 
+// CreateOrderHandler 创建一个新的订单
 func CreateOrderHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
 		defer c.Abort()
@@ -114,6 +124,46 @@ func CreateOrderHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Con
 	}
 }
 
+// UpdateOrderHandler 更新一个订单
 func UpdateOrderHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
-	return func(ctx *gin.Context) {}
+	return func(c *gin.Context) {
+		orderid := c.Param("orderid")
+		order := new(Order)
+		err := c.ShouldBindJSON(order)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, common.ResponseTemplate{
+				Code:    common.DB_UPDATE_ERROR,
+				Message: "update order failed.",
+			})
+			c.Abort()
+			return
+		}
+		queryString := "UPDATE orders SET userid=?,productid=?,pay=?,create_time=?,type=? WHERE orderid=?"
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		res, err := rc.DBhandler.ExecContext(ctx, queryString, order.UserId, order.ProductId, order.Price, order.Date, order.Type, orderid)
+		if err != nil {
+			l.Errorf("update order failed: %v", err)
+			c.JSON(http.StatusInternalServerError, common.ResponseTemplate{
+				Code:    common.DB_UPDATE_ERROR,
+				Message: "update order failed.",
+			})
+			c.Abort()
+			return
+		}
+		affect, err := res.RowsAffected()
+		if err != nil || affect != 1 {
+			l.Errorf("update order failed: %v, affected: %v", err, affect)
+			c.JSON(http.StatusInternalServerError, common.ResponseTemplate{
+				Code:    common.DB_UPDATE_ERROR,
+				Message: "update order failed.",
+			})
+			c.Abort()
+			return
+		}
+		c.JSON(http.StatusOK, common.ResponseTemplate{
+			Code:    common.SUCCESS,
+			Message: "order updated successfully.",
+		})
+	}
 }

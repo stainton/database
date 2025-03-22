@@ -65,6 +65,7 @@ func NewDatabaseAPICmd() *cobra.Command {
 
 			router.POST("/order", order.CreateOrderHandler(l, rc))
 			router.GET("/order", order.QueryOrderHandler(l, rc))
+			router.PUT("/order/:orderid", order.QueryOrderHandler(l, rc))
 
 			if err = router.Run(":8090"); err != nil {
 				l.Fatalf("start server failed: %v", err)
