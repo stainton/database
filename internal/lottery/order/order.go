@@ -59,7 +59,7 @@ func getQueryParams(c *gin.Context) string {
 func QueryOrderHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
 		defer c.Abort()
-		queryString := fmt.Sprintf("SELECT userid,productid,pay,create_time,type FROM orders %s", getQueryParams(c))
+		queryString := fmt.Sprintf("SELECT orderid,userid,productid,price,create_time,type FROM orders %s", getQueryParams(c))
 		l.Info(queryString)
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
@@ -75,7 +75,7 @@ func QueryOrderHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Cont
 		odrs := []Order{}
 		for rows.Next() {
 			o := Order{}
-			err = rows.Scan(&o.UserId, &o.ProductId, &o.Price, &o.Date, &o.Type)
+			err = rows.Scan(&o.OrderId, &o.UserId, &o.ProductId, &o.Price, &o.Date, &o.Type)
 			if err != nil {
 				l.Errorf("scan body from db failed: %v", err)
 				continue
@@ -90,7 +90,7 @@ func QueryOrderHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Cont
 func CreateOrderHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
 		defer c.Abort()
-		queryString := "INSERT INTO orders (userid,productid,pay,create_time,type) VALUES (?,?,?,?,?)"
+		queryString := "INSERT INTO orders (userid,productid,price,create_time,type) VALUES (?,?,?,?,?)"
 		odr := Order{}
 		err := c.ShouldBindJSON(&odr)
 		if err != nil {
@@ -138,7 +138,7 @@ func UpdateOrderHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Con
 			c.Abort()
 			return
 		}
-		queryString := "UPDATE orders SET userid=?,productid=?,pay=?,create_time=?,type=? WHERE orderid=?"
+		queryString := "UPDATE orders SET userid=?,productid=?,price=?,create_time=?,type=? WHERE orderid=?"
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		res, err := rc.DBhandler.ExecContext(ctx, queryString, order.UserId, order.ProductId, order.Price, order.Date, order.Type, orderid)
@@ -164,6 +164,38 @@ func UpdateOrderHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Con
 		c.JSON(http.StatusOK, common.ResponseTemplate{
 			Code:    common.SUCCESS,
 			Message: "order updated successfully.",
+		})
+	}
+}
+
+// TableCreateHandler 在数据库中创建orders表
+func TableCreateHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
+	return func(c *gin.Context) {
+		defer c.Abort()
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		db := rc.DBhandler
+		queryString := `CREATE TABLE orders(
+			orderid int NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT 'Primary Key',
+			userid INT NOT NULL COMMENT 'User ID',
+			productid INT NOT NULL COMMENT 'Product ID',
+			price INT NOT NULL COMMENT 'Price',
+			type ENUM('M', 'H') NOT NULL COMMENT 'Order Type',
+			create_time DATETIME COMMENT 'Create Time',
+			update_time DATETIME COMMENT 'Update Time'
+		);`
+		_, err := db.ExecContext(ctx, queryString)
+		if err != nil {
+			l.Errorf("create table failed: %v", err)
+			c.JSON(http.StatusInternalServerError, common.ResponseTemplate{
+				Code:    common.DB_CONNECT,
+				Message: "create table failed.",
+			})
+			return
+		}
+		c.JSON(http.StatusOK, common.ResponseTemplate{
+			Code:    common.SUCCESS,
+			Message: "create table successfully.",
 		})
 	}
 }

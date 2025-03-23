@@ -10,7 +10,7 @@ import (
 )
 
 func NewDB(l logger.Logger, username, password, endpoint, database string, port int) (*sql.DB, error) {
-	dbSourceString := fmt.Sprintf("%s:%s@tcp(%s:3306)/%s", username, password, endpoint, database)
+	dbSourceString := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", username, password, endpoint, port, database)
 	db, err := sql.Open("mysql", dbSourceString)
 	if err != nil {
 		l.Fatal("failed to open database")

@@ -1,7 +1,9 @@
 package reward
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -14,6 +16,28 @@ import (
 type Reward struct {
 	ProductId int64  `json:"productid"`
 	Date      string `json:"date"`
+	Type      string `json:"type"`
+}
+
+func getQueryParams(c *gin.Context) string {
+	elements := []string{}
+	var v string
+	var ok bool
+	if v, ok = c.GetQuery("date"); ok {
+		elements = append(elements, fmt.Sprintf("date = %s", v))
+	}
+	if v, ok = c.GetQuery("type"); ok {
+		elements = append(elements, fmt.Sprintf("type = %s", v))
+	}
+	if v, ok = c.GetQuery("productid"); ok {
+		elements = append(elements, fmt.Sprintf("productid = %s", v))
+	}
+	if len(elements) == 0 {
+		return ""
+	} else if len(elements) == 1 {
+		return fmt.Sprintf("WHERE %s", elements[0])
+	}
+	return fmt.Sprintf("WHERE %s", strings.Join(elements, " AND "))
 }
 
 // 应该返回实际的购买情况
@@ -90,6 +114,34 @@ func CreateRewardHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Co
 		c.JSON(http.StatusOK, common.ResponseTemplate{
 			Code:    int(id),
 			Message: "reward created successfully(code in body is the effected row).",
+		})
+	}
+}
+
+func TableCreateHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
+	return func(c *gin.Context) {
+		defer c.Abort()
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		db := rc.DBhandler
+		queryString := `CREATE TABLE rewards(
+			id int NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT 'Primary Key',
+			productid INT NOT NULL COMMENT 'Product ID',
+			type ENUM('M', 'H') NOT NULL COMMENT 'Rward type',
+			date DATETIME COMMENT 'Date'
+		);`
+		_, err := db.ExecContext(ctx, queryString)
+		if err != nil {
+			l.Errorf("create table failed: %v", err)
+			c.JSON(http.StatusInternalServerError, common.ResponseTemplate{
+				Code:    common.DB_CONNECT,
+				Message: "create table failed.",
+			})
+			return
+		}
+		c.JSON(http.StatusOK, common.ResponseTemplate{
+			Code:    common.SUCCESS,
+			Message: "create table successfully.",
 		})
 	}
 }

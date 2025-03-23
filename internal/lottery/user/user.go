@@ -163,7 +163,7 @@ func UpdateUserHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Cont
 		queryString := "UPDATE users SET name =?, telephone =? WHERE userid =?"
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		res, err := db.ExecContext(ctx, queryString, usr.Name, usr.Telephone)
+		res, err := db.ExecContext(ctx, queryString, usr.Name, usr.Telephone, usr.UserID)
 		if err != nil {
 			l.Errorf("update user failed: %v", err)
 			c.JSON(http.StatusInternalServerError, common.ResponseTemplate{
@@ -181,6 +181,34 @@ func UpdateUserHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Cont
 			UserID:    int(id),
 			Name:      usr.Name,
 			Telephone: usr.Telephone,
+		})
+	}
+}
+
+func TableCreateHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
+	return func(c *gin.Context) {
+		defer c.Abort()
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		db := rc.DBhandler
+		queryString := `CREATE TABLE users(
+			userid int NOT NULL PRIMARY KEY AUTO_INCREMENT COMMENT 'Primary Key',
+			create_time DATETIME COMMENT 'Create Time',
+			update_time DATETIME COMMENT 'Update Time',
+			telephone VARCHAR(128) UNIQUE NOT NULL COMMENT 'Telephone Number',
+			name VARCHAR(128));`
+		_, err := db.ExecContext(ctx, queryString)
+		if err != nil {
+			l.Errorf("create table failed: %v", err)
+			c.JSON(http.StatusInternalServerError, common.ResponseTemplate{
+				Code:    common.DB_CONNECT,
+				Message: "create table failed.",
+			})
+			return
+		}
+		c.JSON(http.StatusOK, common.ResponseTemplate{
+			Code:    common.SUCCESS,
+			Message: "create table successfully.",
 		})
 	}
 }

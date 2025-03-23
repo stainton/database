@@ -50,22 +50,18 @@ func NewDatabaseAPICmd() *cobra.Command {
 				fmt.Println("Logger stoped...")
 				wg.Done()
 			}()
-			sqlDB, err := db.NewDB(l, "root", "961110", "localhost", "lottery", 3306)
+			sqlDB, err := db.NewDB(l, "root", "961110", "localhost", "lottery", 13306)
+			// TODO: 需要检测数据库是否可以联通
 			if err != nil {
+				l.Errorf("Error creating database: %v", err)
 				cancel()
 				wg.Wait()
 				return
 			}
 			rc := &config.RuntimeConfig{DBhandler: sqlDB}
-			router.POST("/user", user.RegisterUserHandler(l, rc))
-			router.GET("/user", user.GetUserChain(l, rc)...)
-			router.PUT("/user", user.UpdateUserHandler(l, rc))
-
-			router.POST("/reward", reward.CreateRewardHandler(l, rc))
-
-			router.POST("/order", order.CreateOrderHandler(l, rc))
-			router.GET("/order", order.QueryOrderHandler(l, rc))
-			router.PUT("/order/:orderid", order.QueryOrderHandler(l, rc))
+			user.ChainMake(router, l, rc)
+			reward.ChainMake(router, l, rc)
+			order.ChainMake(router, l, rc)
 
 			if err = router.Run(":8090"); err != nil {
 				l.Fatalf("start server failed: %v", err)
