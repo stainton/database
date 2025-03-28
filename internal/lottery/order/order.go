@@ -10,17 +10,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stainton/database/internal/lottery/common"
 	"github.com/stainton/database/internal/lottery/config"
+	"github.com/stainton/database/pkg/lottery/model"
 	"github.com/stainton/logger"
 )
-
-type Order struct {
-	OrderId   int64  `json:"orderid"`
-	UserId    int64  `json:"userid"`
-	ProductId int64  `json:"productid"`
-	Price     int64  `json:"price"`
-	Date      string `json:"date"`
-	Type      string `json:"type"`
-}
 
 // TODO: orderid不应该由用户创建，应该自增
 
@@ -72,9 +64,9 @@ func QueryOrderHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Cont
 			})
 			return
 		}
-		odrs := []Order{}
+		odrs := []model.Order{}
 		for rows.Next() {
-			o := Order{}
+			o := model.Order{}
 			err = rows.Scan(&o.OrderId, &o.UserId, &o.ProductId, &o.Price, &o.Date, &o.Type)
 			if err != nil {
 				l.Errorf("scan body from db failed: %v", err)
@@ -91,7 +83,7 @@ func CreateOrderHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Con
 	return func(c *gin.Context) {
 		defer c.Abort()
 		queryString := "INSERT INTO orders (userid,productid,price,create_time,type) VALUES (?,?,?,?,?)"
-		odr := Order{}
+		odr := model.Order{}
 		err := c.ShouldBindJSON(&odr)
 		if err != nil {
 			l.Errorf("unmarshal body failed: %v", err)
@@ -128,7 +120,7 @@ func CreateOrderHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Con
 func UpdateOrderHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
 		orderid := c.Param("orderid")
-		order := new(Order)
+		order := new(model.Order)
 		err := c.ShouldBindJSON(order)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, common.ResponseTemplate{
@@ -180,7 +172,7 @@ func TableCreateHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Con
 			userid INT NOT NULL COMMENT 'User ID',
 			productid INT NOT NULL COMMENT 'Product ID',
 			price INT NOT NULL COMMENT 'Price',
-			type ENUM('M', 'H') NOT NULL COMMENT 'Order Type',
+			type ENUM('M', 'H') NOT NULL COMMENT 'model.Order Type',
 			create_time DATETIME COMMENT 'Create Time',
 			update_time DATETIME COMMENT 'Update Time'
 		);`

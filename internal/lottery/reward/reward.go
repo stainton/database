@@ -9,15 +9,10 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stainton/database/internal/lottery/common"
 	"github.com/stainton/database/internal/lottery/config"
+	"github.com/stainton/database/pkg/lottery/model"
 	"github.com/stainton/logger"
 	"golang.org/x/net/context"
 )
-
-type Reward struct {
-	ProductId int64  `json:"productid"`
-	Date      string `json:"date"`
-	Type      string `json:"type"`
-}
 
 func getQueryParams(c *gin.Context) string {
 	elements := []string{}
@@ -75,7 +70,7 @@ func GetRewardHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Conte
 func CreateRewardHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
 		defer c.Abort()
-		reward := Reward{}
+		reward := model.Reward{}
 		err := c.ShouldBindBodyWithJSON(&reward)
 		if err != nil {
 			l.Errorf("unmarshal reward from body failed : %v", err)

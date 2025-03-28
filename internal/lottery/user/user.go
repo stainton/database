@@ -10,20 +10,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stainton/database/internal/lottery/common"
 	"github.com/stainton/database/internal/lottery/config"
+	"github.com/stainton/database/pkg/lottery/model"
 	"github.com/stainton/logger"
 )
-
-type User struct {
-	UserID    int    `json:"userid"`
-	Name      string `json:"name"`
-	Telephone string `json:"telephone"`
-}
 
 // RegisterUserHandler 处理单个用户的注册
 func RegisterUserHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
 		db := rc.DBhandler
-		usr := User{}
+		usr := model.User{}
 		if err := c.ShouldBindBodyWithJSON(&usr); err != nil {
 			l.Errorf("unmarshal request body failed: %v", err)
 			c.JSON(http.StatusBadRequest, common.ResponseTemplate{
@@ -49,7 +44,7 @@ func RegisterUserHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Co
 			l.Errorf("get userid failed: %v", err)
 			id = -1
 		}
-		c.JSON(http.StatusOK, User{
+		c.JSON(http.StatusOK, model.User{
 			UserID:    int(id),
 			Name:      usr.Name,
 			Telephone: usr.Telephone,
@@ -94,9 +89,9 @@ func GetUserListHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Con
 			return
 		}
 
-		usrs := []*User{}
+		usrs := []*model.User{}
 		for rows.Next() {
-			usr := User{}
+			usr := model.User{}
 			if err := rows.Scan(&usr.UserID, &usr.Name, &usr.Telephone); err != nil {
 				l.Errorf("scan user info failed: %v", err)
 				c.JSON(http.StatusInternalServerError, common.ResponseTemplate{
@@ -134,7 +129,7 @@ func GetAnUserHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Conte
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		row := db.QueryRowContext(ctx, queryString, value)
-		usr := User{}
+		usr := model.User{}
 		if err := row.Scan(&usr.UserID, &usr.Name, &usr.Telephone); err != nil {
 			l.Errorf("scan user info failed: %v", err)
 			c.JSON(http.StatusInternalServerError, common.ResponseTemplate{
@@ -151,7 +146,7 @@ func GetAnUserHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Conte
 func UpdateUserHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
 		db := rc.DBhandler
-		usr := User{}
+		usr := model.User{}
 		if err := c.ShouldBindBodyWithJSON(&usr); err != nil {
 			l.Errorf("unmarshal request body failed: %v", err)
 			c.JSON(http.StatusBadRequest, common.ResponseTemplate{
@@ -177,7 +172,7 @@ func UpdateUserHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Cont
 			l.Errorf("get userid failed: %v", err)
 			id = -1
 		}
-		c.JSON(http.StatusOK, User{
+		c.JSON(http.StatusOK, model.User{
 			UserID:    int(id),
 			Name:      usr.Name,
 			Telephone: usr.Telephone,
