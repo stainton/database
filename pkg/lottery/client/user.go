@@ -9,7 +9,7 @@ import (
 	"github.com/stainton/database/pkg/lottery/model"
 )
 
-func (c *LotteryStruct) AddAnUser(name, telephone string) (userid int, err error) {
+func (c *LotteryClient) AddAnUser(name, telephone string) (userid int, err error) {
 	// http客户端发起请求
 	client := http.DefaultClient
 	url := c.getUrl(model.PATH_USER_ROOT)
@@ -44,4 +44,45 @@ func (c *LotteryStruct) AddAnUser(name, telephone string) (userid int, err error
 		return -1, err
 	}
 	return usr.UserID, nil
+}
+
+func (c *LotteryClient) GetUsers(usr *model.User, amount int) []*model.User {
+	cli := http.DefaultClient
+	url := c.getUrl(model.PATH_USER_ROOT)
+	if usr != nil {
+		url = c.withQuery(url, usr.Mapping())
+		c.logger.Infof("url %v", url)
+	} else if amount > 0 {
+		url = c.withQuery(url, map[string]any{
+			"amount": amount,
+		})
+		c.logger.Infof("url %v", url)
+	} else {
+		c.logger.Errorf("no valid amount: %v", amount)
+		return nil
+	}
+	resp, err := cli.Get(url)
+	if err != nil {
+		c.logger.Errorf("failed to get users: %v", err)
+		return nil
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		c.logger.Infof("request failed, status code: %d", resp.StatusCode)
+		return nil
+	}
+	buffer, err := io.ReadAll(resp.Body)
+	if err != nil {
+		c.logger.Errorf("failed to read from body: %v", err)
+		return nil
+	}
+
+	var users []*model.User
+	err = json.Unmarshal(buffer, &users)
+	if err != nil {
+		c.logger.Errorf("failed to unmarshal users: %v", err)
+		c.logger.Debugf("response body is %v", bytes.NewBuffer(buffer).String())
+		return nil
+	}
+	return users
 }

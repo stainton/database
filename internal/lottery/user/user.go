@@ -63,7 +63,7 @@ func GetUserChain(l logger.Logger, rc *config.RuntimeConfig) gin.HandlersChain {
 // GetUserListHandler 获取用户列表
 func GetUserListHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
-		value, ok := c.GetQuery("batch")
+		value, ok := c.GetQuery("amount")
 		if !ok {
 			c.Next()
 			return
@@ -138,7 +138,7 @@ func GetAnUserHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Conte
 			})
 			return
 		}
-		c.JSON(http.StatusOK, usr)
+		c.JSON(http.StatusOK, []*model.User{&usr})
 	}
 }
 
