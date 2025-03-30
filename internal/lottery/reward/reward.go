@@ -1,9 +1,7 @@
 package reward
 
 import (
-	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -13,27 +11,6 @@ import (
 	"github.com/stainton/logger"
 	"golang.org/x/net/context"
 )
-
-func getQueryParams(c *gin.Context) string {
-	elements := []string{}
-	var v string
-	var ok bool
-	if v, ok = c.GetQuery("date"); ok {
-		elements = append(elements, fmt.Sprintf("date = %s", v))
-	}
-	if v, ok = c.GetQuery("type"); ok {
-		elements = append(elements, fmt.Sprintf("type = %s", v))
-	}
-	if v, ok = c.GetQuery("productid"); ok {
-		elements = append(elements, fmt.Sprintf("productid = %s", v))
-	}
-	if len(elements) == 0 {
-		return ""
-	} else if len(elements) == 1 {
-		return fmt.Sprintf("WHERE %s", elements[0])
-	}
-	return fmt.Sprintf("WHERE %s", strings.Join(elements, " AND "))
-}
 
 // 应该返回实际的购买情况
 func GetRewardHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {

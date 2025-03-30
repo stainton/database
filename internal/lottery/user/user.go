@@ -180,6 +180,7 @@ func UpdateUserHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Cont
 	}
 }
 
+// TableCreateHandler 创建表
 func TableCreateHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
 		defer c.Abort()

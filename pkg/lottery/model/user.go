@@ -1,14 +1,15 @@
 package model
 
+const (
+	PATH_USER_ROOT         string = "user"
+	PATH_USER_TABLE_CREATE string = "user/register"
+)
+
 type User struct {
 	UserID    int    `json:"userid"`
 	Name      string `json:"name"`
 	Telephone string `json:"telephone"`
 }
-
-const (
-	PATH_USER_ROOT string = "user"
-)
 
 func (u *User) Mapping() map[string]any {
 	if u == nil {
