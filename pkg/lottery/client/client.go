@@ -27,6 +27,13 @@ func (lc *LotteryClient) getUrl(pth string) string {
 	return fmt.Sprintf("http://%s:%d/%s", lc.hostname, lc.port, pth)
 }
 
+func (lc *LotteryClient) withParams(url string, params ...any) string {
+	if len(params) == 0 {
+		return url
+	}
+	return fmt.Sprintf("%s/%s", url, lc.join("/", params))
+}
+
 func (lc *LotteryClient) withQuery(url string, mp map[string]any) string {
 	if len(mp) == 0 {
 		return url
@@ -38,7 +45,7 @@ func (lc *LotteryClient) withQuery(url string, mp map[string]any) string {
 	return fmt.Sprintf("%s?%s", url, strings.Join(qs, "&"))
 }
 
-func (lc *LotteryClient) createUserTable(pth string) error {
+func (lc *LotteryClient) createTable(pth string) error {
 	cli := http.DefaultClient
 	url := lc.getUrl(pth)
 	response, err := cli.Post(url, "application/json", nil)

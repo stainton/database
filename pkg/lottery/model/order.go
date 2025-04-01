@@ -1,5 +1,10 @@
 package model
 
+const (
+	PATH_ORDER_ROOT         string = "order"
+	PATH_ORDER_TABLE_CREATE string = "order/register"
+)
+
 type Order struct {
 	OrderId   int64  `json:"orderid"`
 	UserId    int64  `json:"userid"`

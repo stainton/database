@@ -123,5 +123,5 @@ func (lc *LotteryClient) UpdateUser(usr *model.User) error {
 }
 
 func (lc *LotteryClient) CreateUserTable() error {
-	return lc.createUserTable(model.PATH_USER_TABLE_CREATE)
+	return lc.createTable(model.PATH_USER_TABLE_CREATE)
 }

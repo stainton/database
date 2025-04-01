@@ -9,7 +9,7 @@ import (
 )
 
 func (lc *LotteryClient) CreateRewardTable() error {
-	return lc.createUserTable(model.PATH_REWARD_TABLE_CREATE)
+	return lc.createTable(model.PATH_REWARD_TABLE_CREATE)
 }
 
 func (lc *LotteryClient) AddAReward(rwd *model.Reward) error {
