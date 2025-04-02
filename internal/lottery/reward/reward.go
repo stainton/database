@@ -5,14 +5,14 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/stainton/database/internal/lottery/common"
 	"github.com/stainton/database/internal/lottery/config"
+	"github.com/stainton/database/pkg/lottery/common"
 	"github.com/stainton/database/pkg/lottery/model"
 	"github.com/stainton/logger"
 	"golang.org/x/net/context"
 )
 
-// 应该返回实际的购买情况
+// 当前只支持date查询，且只返回号码
 func GetRewardHandler(l logger.Logger, rc *config.RuntimeConfig) func(*gin.Context) {
 	return func(c *gin.Context) {
 		d, exist := c.GetQuery("date")

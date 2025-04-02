@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/stainton/database/pkg/lottery/common"
 	"github.com/stainton/database/pkg/lottery/model"
 )
 
@@ -33,25 +34,25 @@ func (lc *LotteryClient) AddAReward(rwd *model.Reward) error {
 	return nil
 }
 
-func (lc *LotteryClient) GetRewards(qry *model.Reward) []*model.Reward {
+func (lc *LotteryClient) GetRewards(qry *model.Reward) int64 {
 	cli := http.DefaultClient
 	url := lc.getUrl(model.PATH_REWARD_ROOT)
 	url = lc.withQuery(url, qry.Mapping())
 	response, err := cli.Get(url)
 	if err != nil {
 		lc.logger.Errorf("request failed: %v", err)
-		return nil
+		return -1
 	}
 	defer response.Body.Close()
 	if response.StatusCode != http.StatusOK {
 		lc.logger.Infof("request failed, status code: %d", response.StatusCode)
-		return nil
+		return -1
 	}
-	var rewards []*model.Reward
+	rewards := common.ResponseTemplate{}
 	err = json.NewDecoder(response.Body).Decode(&rewards)
 	if err != nil {
 		lc.logger.Errorf("unmarshal failed: %v", err)
-		return nil
+		return -1
 	}
-	return rewards
+	return int64(rewards.Code)
 }

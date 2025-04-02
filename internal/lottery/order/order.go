@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/stainton/database/internal/lottery/common"
 	"github.com/stainton/database/internal/lottery/config"
+	"github.com/stainton/database/pkg/lottery/common"
 	"github.com/stainton/database/pkg/lottery/model"
 	"github.com/stainton/logger"
 )

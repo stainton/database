@@ -20,7 +20,7 @@ func (r *Reward) Mapping() map[string]any {
 		return nil
 	}
 	mp := make(map[string]any, 3)
-	if r.ProductId <= 0 {
+	if r.ProductId > 0 {
 		mp["productid"] = r.ProductId
 	}
 	if r.Date != "" {
