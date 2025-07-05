@@ -6,37 +6,63 @@ import (
 	"strings"
 )
 
-type Model map[string]string
+type Model struct {
+	TableModel map[string]string `json:"table-model"`
+	Name       string            `json:"name"`
+	KeyNums    int               `json:"-"`
+	Verified   bool              `json:"verified"`
+}
 
-func ModelFromFile(filename string) (Model, error) {
+func ModelFromFile(filename string) (*Model, error) {
 	content, err := os.ReadFile(filename)
 	if err != nil {
 		return nil, err
 	}
-	md := make(Model, 1000)
-	err = json.Unmarshal(content, &md)
+	return ModelFromContent(content)
+}
+
+func ModelFromContent(content []byte) (*Model, error) {
+	model := make(map[string]any, 1000)
+	err := json.Unmarshal(content, &model)
 	if err != nil {
 		return nil, err
 	}
-	return md, nil
-}
 
-func ModelFromContent(content []byte) (Model, error) {
-	md := make(Model, 1000)
-	err := json.Unmarshal(content, &md)
-	if err != nil {
-		return nil, err
+	// 验证表名参数正确
+	tn, ok := model["name"]
+	tableName, typeOK := tn.(string)
+	if !ok || !typeOK || tableName == "" {
+		return nil, os.ErrInvalid
 	}
-	return md, nil
+
+	// 验证验证参数正确
+	v, ok := model["verified"]
+	verified, typeOK := v.(bool)
+	if !ok || !typeOK {
+		return nil, os.ErrInvalid
+	}
+
+	// 验证表模型正确
+	tm, ok := model["table-model"]
+	tableModel, typeOK := tm.(map[string]string)
+	if !ok || !typeOK {
+		return nil, os.ErrInvalid
+	}
+
+	return &Model{
+		TableModel: tableModel,
+		Name:       tableName,
+		Verified:   verified,
+	}, nil
 }
 
-func (m Model) NewTableCreateSQL(tableName string) string {
+// NewTableCreateSQL 生成创建表的SQL语句
+func (m *Model) NewTableCreateSQL() string {
 	sb := strings.Builder{}
 	sb.WriteString("CREATE TABLE IF NOT EXISTS ")
-	sb.WriteString(tableName)
+	sb.WriteString(m.Name)
 	sb.WriteString(" (")
-	// sql := "CREATE TABLE IF NOT EXISTS " + tableName + " ("
-	for k, v := range m {
+	for k, v := range m.TableModel {
 		sb.WriteString(k)
 		sb.WriteByte(' ')
 		sb.WriteString(v)
