@@ -1,3 +1,4 @@
 local_log
 clear.sh
 *.log
+.vscode

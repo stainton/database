@@ -6,7 +6,6 @@ import (
 )
 
 func TestVerfication(t *testing.T) {
-	fmt.Println(verifyField("varchar(100)", "test string"))
 	fields := []string{
 		"varchar(100)",
 		"text",

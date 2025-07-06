@@ -7,10 +7,11 @@ import (
 )
 
 type Model struct {
-	TableModel map[string]string `json:"table-model"`
-	Name       string            `json:"name"`
-	KeyNums    int               `json:"-"`
-	Verified   bool              `json:"verified"`
+	TableModel  map[string]string `json:"table-model"`
+	Name        string            `json:"name"`
+	Verified    bool              `json:"verified"`
+	KeyNums     int               `json:"-"`
+	columnNames []string          `json:"-"`
 }
 
 func ModelFromFile(filename string) (*Model, error) {
@@ -52,6 +53,7 @@ func ModelFromContent(content []byte) (*Model, error) {
 	return &Model{
 		TableModel: tableModel,
 		Name:       tableName,
+		KeyNums:    len(tableModel),
 		Verified:   verified,
 	}, nil
 }
@@ -71,4 +73,68 @@ func (m *Model) NewTableCreateSQL() string {
 	sb.WriteString(");")
 	sql := sb.String()
 	return strings.ReplaceAll(sql, ", );", ");")
+}
+
+func (m *Model) ColumnNames() []string {
+	if m.columnNames != nil {
+		return m.columnNames
+	}
+	names := make([]string, 0, len(m.TableModel))
+	for k := range m.TableModel {
+		names = append(names, k)
+	}
+	m.columnNames = names
+	return names
+}
+
+func (m *Model) NewScanBuffer() []any {
+	buffer := make([]any, 0, len(m.TableModel))
+	for _, name := range m.ColumnNames() {
+		valueType := strings.ToLower(m.TableModel[name])
+		if strings.Contains(valueType, "int") {
+			var value int = 0
+			buffer = append(buffer, &value)
+			continue
+		}
+		if strings.Contains(valueType, "decimal") {
+			var value float64 = 0.0
+			buffer = append(buffer, &value)
+			continue
+		}
+		if strings.Contains(valueType, "char") || strings.Contains(valueType, "text") {
+			var value string = ""
+			buffer = append(buffer, &value)
+			continue
+		}
+		if strings.Contains(valueType, "bool") {
+			var value bool = false
+			buffer = append(buffer, &value)
+			continue
+		}
+	}
+	return buffer
+}
+
+func (m *Model) UnmarshalBuffer(buffer []any) map[string]any {
+	data := make(map[string]any, len(m.TableModel))
+	for i, name := range m.ColumnNames() {
+		value := buffer[i]
+		if value == nil {
+			data[name] = nil
+			continue
+		}
+		switch v := value.(type) {
+		case *int:
+			data[name] = *v
+		case *float64:
+			data[name] = *v
+		case *string:
+			data[name] = *v
+		case *bool:
+			data[name] = *v
+		default:
+			data[name] = v // 其他类型直接使用
+		}
+	}
+	return data
 }
